@@ -21,20 +21,37 @@ final class NetworkService: NetworkServiceProtocol {
     
     // MARK: - NetworkService variables and constants
     var employeeList: [Employee]?
-    private let urlSession: URLSession = {
-        let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForResource = Constants.timeoutTimeInterval
-        let session = URLSession(configuration: configuration)
-        return session
+    
+    private let decoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
     }()
-    
+    private let cache: CacheResponseProtocol?
 
+    // MARK: - LifeCycle
+    init(cache: CacheResponseProtocol?)
+    {
+        self.cache = cache
+    }
     
+    convenience init() {
+        self.init(
+            cache: CacheResponse(memoryCapacity: Constants.allowedMemorySize,
+                                 diskCapacity: Constants.allowedDiskSize,
+                                 diskPath: Constants.diskPath))
+    }
     
-    
+    // MARK: - Creating URLSession
+    private func createAndRetrieveURLSession() -> URLSession {
+        let sessionConfiguration = URLSessionConfiguration.default
+        sessionConfiguration.timeoutIntervalForResource = Constants.timeoutTimeInterval
+        return URLSession(configuration: sessionConfiguration)
+    }
+
     // MARK: - Fetching employees list
     func fetchEmployeeList() async throws -> [Employee]? {
-        
+
         let urlString = Constants.withEmployeeListURL
         
         do {
@@ -42,7 +59,17 @@ final class NetworkService: NetworkServiceProtocol {
             else {
                 throw ErrorTypes.invalidURL
             }
-            let (data, response) = try await urlSession.data(from: url)
+            
+            let urlRequest = URLRequest(url: url)
+            
+            if let cachedData = cache?.data(forRequest: urlRequest),
+               let employeeListFromCache = try decode(data: cachedData) {
+                employeeList = employeeListFromCache
+                return employeeList
+            }
+            
+            let (data, response) = try await createAndRetrieveURLSession().asyncData(from: urlRequest)
+            
             guard let httpResponse = response as? HTTPURLResponse
             else {
                 throw ErrorTypes.invalidResponse
@@ -58,16 +85,32 @@ final class NetworkService: NetworkServiceProtocol {
                 throw ErrorTypes.networkError
             }
             
-            guard let decodedData = try? JSONDecoder().decode(EmployeeList.self, from: data)
+            self.cache?.insert(data,
+                               forRequest: urlRequest,
+                               withResponse: response,
+                               lifetime: Constants.cacheStorageTimeInterval)
+            
+            guard let decodedData = try? self.decode(data: data)
             else {
                 throw  ErrorTypes.invalidData
             }
-            employeeList = decodedData.company?.employees
+            employeeList = decodedData
+            
             return employeeList
+            
         } catch {
             print(error.localizedDescription)
         }
         return employeeList
+    }
+    
+    private func decode(data: Data) throws -> [Employee]? {
+        do {
+            let companyResult = try decoder.decode(EmployeeList.self, from: data)
+            return companyResult.company?.employees
+        } catch {
+            return nil
+        }
     }
 }
 
@@ -75,4 +118,8 @@ final class NetworkService: NetworkServiceProtocol {
 fileprivate struct Constants {
     static let timeoutTimeInterval: TimeInterval = 7
     static let withEmployeeListURL = "https://run.mocky.io/v3/1d1cb4ec-73db-4762-8c4b-0b8aa3cecd4c"
+    static let diskPath = "companyFetcherCache"
+    static let allowedMemorySize = 10 * 1024 * 1024 // 10 Mb
+    static let allowedDiskSize = 10 * 1024 * 1024 // 10 Mb
+    static let cacheStorageTimeInterval: Double = 60 * 60 // 1 hour
 }

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		6F06DDE8290D69BA00DB5297 /* UIFontExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F06DDE7290D69BA00DB5297 /* UIFontExtension.swift */; };
 		6F06DDEA290D6A5E00DB5297 /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F06DDE9290D6A5E00DB5297 /* UIImageExtension.swift */; };
+		6F06DDED290EBFC500DB5297 /* CacheResponseFromURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F06DDEC290EBFC500DB5297 /* CacheResponseFromURL.swift */; };
+		6F06DDEF290EE18200DB5297 /* URLSessionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F06DDEE290EE18200DB5297 /* URLSessionExtension.swift */; };
 		6F2CF692290BDC21007699FE /* EmployeeListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2CF691290BDC21007699FE /* EmployeeListModel.swift */; };
 		6F2CF69B290BF704007699FE /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2CF69A290BF704007699FE /* UIViewExtension.swift */; };
 		6F2CF69F290BFF3B007699FE /* EmployeePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2CF69E290BFF3B007699FE /* EmployeePresenter.swift */; };
@@ -27,6 +29,8 @@
 /* Begin PBXFileReference section */
 		6F06DDE7290D69BA00DB5297 /* UIFontExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFontExtension.swift; sourceTree = "<group>"; };
 		6F06DDE9290D6A5E00DB5297 /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
+		6F06DDEC290EBFC500DB5297 /* CacheResponseFromURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheResponseFromURL.swift; sourceTree = "<group>"; };
+		6F06DDEE290EE18200DB5297 /* URLSessionExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtension.swift; sourceTree = "<group>"; };
 		6F2CF691290BDC21007699FE /* EmployeeListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeListModel.swift; sourceTree = "<group>"; };
 		6F2CF69A290BF704007699FE /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
 		6F2CF69E290BFF3B007699FE /* EmployeePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeePresenter.swift; sourceTree = "<group>"; };
@@ -55,6 +59,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6F06DDEB290EBF8000DB5297 /* Cache layer */ = {
+			isa = PBXGroup;
+			children = (
+				6F06DDEC290EBFC500DB5297 /* CacheResponseFromURL.swift */,
+			);
+			path = "Cache layer";
+			sourceTree = "<group>";
+		};
 		6F2CF68F290BDC02007699FE /* EmployeeListScreen */ = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +128,7 @@
 				6F2CF69A290BF704007699FE /* UIViewExtension.swift */,
 				6F06DDE7290D69BA00DB5297 /* UIFontExtension.swift */,
 				6F06DDE9290D6A5E00DB5297 /* UIImageExtension.swift */,
+				6F06DDEE290EE18200DB5297 /* URLSessionExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -125,6 +138,7 @@
 			children = (
 				6F2CF6A3290C2786007699FE /* NetworkService.swift */,
 				6F2CF6A5290C2C89007699FE /* ErrorTypes.swift */,
+				6F06DDEB290EBF8000DB5297 /* Cache layer */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -257,6 +271,8 @@
 				6F2CF6A4290C2786007699FE /* NetworkService.swift in Sources */,
 				6FD54CB0290BBCA400A78426 /* EmployeeListViewController.swift in Sources */,
 				6F2CF6AB290D2264007699FE /* NetworkMotinor.swift in Sources */,
+				6F06DDEF290EE18200DB5297 /* URLSessionExtension.swift in Sources */,
+				6F06DDED290EBFC500DB5297 /* CacheResponseFromURL.swift in Sources */,
 				6F2CF6A6290C2C89007699FE /* ErrorTypes.swift in Sources */,
 				6F2CF6A9290C3668007699FE /* ModuleBuilder.swift in Sources */,
 				6FD54CAC290BBCA400A78426 /* AppDelegate.swift in Sources */,

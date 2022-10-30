@@ -8,16 +8,6 @@
 import Foundation
 
 
-public final class EmployeeListFromCache {
-    let modelObj: EmployeeList
-    let expirationDate: Date
-    
-    init(Model: EmployeeList, expirationDate: Date) {
-        self.modelObj = Model
-        self.expirationDate = expirationDate
-    }
-}
-
 // MARK: - EmployeeList
 struct EmployeeList: Decodable{
     let company: Company?
