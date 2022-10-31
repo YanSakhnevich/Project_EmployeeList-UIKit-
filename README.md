@@ -21,10 +21,10 @@
 * 
 ### Скриншоты
 #### - iPhone
-![](Screenshots/iphones.svg)
+![](Screenshots/iphone.svg)
 
 #### - iPad
-![](Screenshots/ipads.svg)
+![](Screenshots/ipad.svg)
 
 ---
 <details>
