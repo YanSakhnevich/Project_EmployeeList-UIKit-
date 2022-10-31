@@ -1,3 +1,9 @@
+//
+//  UIImageExtension.swift
+//  AvitoTestAssignment
+//
+//  Created by Yan Sakhnevich on 30.10.2022.
+//
 
 import Foundation
 #if canImport(FoundationNetworking)

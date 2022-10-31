@@ -5,13 +5,6 @@
 //  Created by Yan Sakhnevich on 28.10.2022.
 //
 
-//
-//  EmployeeTableViewCell.swift
-//  InternshipAvito
-//
-//  Created by Kairat Yelubay on 20.10.2022.
-//
-
 import UIKit
 
 final class EmployeeTableViewCell: UICollectionViewCell {
@@ -21,6 +14,7 @@ final class EmployeeTableViewCell: UICollectionViewCell {
     }
 
     // MARK: - EmployeeTableViewCell variables and constants
+    
     private lazy var employeeAvatarImageView: UIImageView = {
         let avatar = UIImageView()
         avatar.toAutoLayout()
@@ -68,7 +62,8 @@ final class EmployeeTableViewCell: UICollectionViewCell {
         return stackView
     }()
     
-    // MARK: - LifeCycle
+    // MARK: - Life cycle
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
@@ -80,6 +75,7 @@ final class EmployeeTableViewCell: UICollectionViewCell {
     }
     
     // MARK: - Cell configuration
+    
     func configureCellWith(name: String, phoneNumber: String, skills: String) {
         self.nameLabel.text = "Name: \(name)"
         self.phoneNumberLabel.text = "Phone number: \(phoneNumber)"
@@ -87,6 +83,7 @@ final class EmployeeTableViewCell: UICollectionViewCell {
     }
     
     // MARK: - Setup and configure views
+    
     private func setupViews() {
         contentView.backgroundColor = .systemBackground
         setupSubViews()
@@ -121,16 +118,17 @@ final class EmployeeTableViewCell: UICollectionViewCell {
             employeeInfoStackView.bottomAnchor.constraint(equalTo: wrapperView.bottomAnchor)
         ])
     }
-}
+    
+    // MARK: - Constants for constraints and views
 
-// MARK: - Constants for constraints and views
-fileprivate struct Constants {
-    static let leftInset: CGFloat = 10.0
-    static let topInset: CGFloat = 5.0
-    static let rightInset: CGFloat = -10.0
-    static let bottomInset: CGFloat = -5.0
-    static let borderWidth: CGFloat = 0.5
-    static let cornerRadius: CGFloat = 10.0
-    static let avatarImagesize: CGFloat = 64.0
-    static let stackViewSpacing: CGFloat = 3.0
+    private enum Constants {
+        static let leftInset: CGFloat = 10.0
+        static let topInset: CGFloat = 5.0
+        static let rightInset: CGFloat = -10.0
+        static let bottomInset: CGFloat = -5.0
+        static let borderWidth: CGFloat = 0.5
+        static let cornerRadius: CGFloat = 10.0
+        static let avatarImagesize: CGFloat = 64.0
+        static let stackViewSpacing: CGFloat = 3.0
+    }
 }

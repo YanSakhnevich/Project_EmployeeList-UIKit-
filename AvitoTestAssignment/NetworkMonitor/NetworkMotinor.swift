@@ -8,10 +8,10 @@
 import Network
 import Foundation
 
-//MARK: - Tracking the status of the network connection
 final class NetworkMonitor {
     
     // MARK: - NetworkMonitor variables and constants
+    
     static let shared = NetworkMonitor()
     
     private let monitor: NWPathMonitor
@@ -23,12 +23,14 @@ final class NetworkMonitor {
     //Indicates the type of current connection on the network to which we are connected.
     private(set) var currentConnectionType: NWInterface.InterfaceType?
     
-    // MARK: - LifeCycle
+    // MARK: - Life cycle
+    
     private init() {
         monitor = NWPathMonitor()
     }
     
     // MARK: - Start network monitoring
+    
     func startMonitoring() {
         monitor.pathUpdateHandler = { [weak self] path in
             self?.isConnected = path.status != .unsatisfied
@@ -41,12 +43,14 @@ final class NetworkMonitor {
     }
     
     // MARK: - Stop network monitoring
+    
     func stopMonitoring() {
         monitor.cancel()
     }
 }
 
 //MARK: - Implementation for accessing the allCases property in NWInterface.InterfaceType
+
 extension NWInterface.InterfaceType: CaseIterable {
     public static var allCases: [NWInterface.InterfaceType] = [
         .other,
@@ -58,6 +62,7 @@ extension NWInterface.InterfaceType: CaseIterable {
 }
 
 //MARK: - Notification.Name extension
+
 extension Notification.Name {
     static let connectivityStatus = Notification.Name(rawValue: "connectivityStatusChanged")
 }

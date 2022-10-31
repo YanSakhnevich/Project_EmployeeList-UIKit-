@@ -8,12 +8,14 @@
 import Foundation
 
 // MARK: - Protocol for EmployeeListViewController
-protocol EmployeeListProtocol {
+
+protocol EmployeeListProtocol: AnyObject {
     func succes()
     func failure(error: ErrorTypes)
 }
 
 // MARK: - Protocol for EmployeeListPresenter
+
 protocol EmployeeListPresenterProtocol {
     init(view: EmployeeListProtocol, networkService: NetworkServiceProtocol)
     func getEmployees()
@@ -23,27 +25,28 @@ protocol EmployeeListPresenterProtocol {
 final class EmployeeListPresenter: EmployeeListPresenterProtocol {
     
     // MARK: - EmployeeListPresenter variables and constants
-    let view: EmployeeListProtocol?
+    
+    weak var view: EmployeeListProtocol?
     let networkService: NetworkServiceProtocol?
     var employees: [Employee]?
     
-    // MARK: - LifeCycle
+    // MARK: - Life cycle
+    
     required init(view: EmployeeListProtocol, networkService: NetworkServiceProtocol) {
         self.view = view
         self.networkService = networkService
-        getEmployees()
     }
-    
+
     // MARK: - Fetching employees list
+    
     func getEmployees()  {
-        Task{
+        Task(priority: .userInitiated) { [weak self] in
             do {
-                self.employees = try await networkService?.fetchEmployeeList()?.sorted { $0.name ?? "" < $1.name ?? "" } ?? []
-                self.view?.succes()
+                self?.employees = try await networkService?.fetchEmployeeList()?.sorted { $0.name ?? "" < $1.name ?? "" } ?? []
+                self?.view?.succes()
             }
             catch {
-                print(error.localizedDescription)
-                self.view?.failure(error: .invalidEmployeeData)
+                self?.view?.failure(error: .invalidEmployeeData)
             }
         }
     }

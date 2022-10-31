@@ -1,3 +1,4 @@
+//
 //  CacheResponseFromURL.swift
 //  AvitoTestAssignment
 //
@@ -16,20 +17,22 @@ protocol CacheResponseProtocol {
 
 final class CacheResponse: CacheResponseProtocol {
     
-    private enum Constants {
-        static let keyPostfix = "urlCacheExpiry"
-    }
-    
+    // MARK: - CacheResponse variables and constants
+
     private let cache: URLCache
     
+    // MARK: - Life cycle
+
     init(memoryCapacity: Int, diskCapacity: Int, diskPath: String) {
         cache = URLCache(memoryCapacity: memoryCapacity, diskCapacity: diskCapacity, diskPath: diskPath)
     }
     
+    // MARK: - CacheResponseProtocol methods
+    
     func insert(_ data: Data, forRequest request: URLRequest, withResponse response: URLResponse, lifetime: TimeInterval?) {
         let cachedData = CachedURLResponse(response: response, data: data)
         cache.storeCachedResponse(cachedData, for: request)
-        if let lifetime = lifetime {
+        if let lifetime {
             saveExpiryDate(Date().addingTimeInterval(lifetime), forRequest: request)
         } else {
             saveExpiryDate(nil, forRequest: request)
@@ -51,9 +54,17 @@ final class CacheResponse: CacheResponseProtocol {
     private func cacheData(forRequest request: URLRequest) -> Data? {
         cache.cachedResponse(for: request)?.data
     }
+    
+    // MARK: - Constants
+    
+    private enum Constants {
+        static let keyPostfix = "urlCacheExpiry"
+    }
+    
 }
 
 // MARK: - Cache values expiry handling
+
 private extension CacheResponse {
     func isDataExpired(forRequest request: URLRequest) -> Bool {
         if let expiryDate = expiryDate(forRequest: request) {

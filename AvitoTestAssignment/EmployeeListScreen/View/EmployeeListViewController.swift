@@ -10,52 +10,54 @@ import UIKit
 final class EmployeesListViewController: UIViewController {
     
     // MARK: - Sections for collectionView
+    
     enum Section {
         case main
     }
     
     // MARK: - EmployeesListViewController variables and constants
+    
     var presenter: EmployeeListPresenterProtocol!
     private var dataSource: UICollectionViewDiffableDataSource<Section, Employee>?
     private var employeeListCollection: UICollectionView!
     
-    // MARK: - LifeCycle
+    private let networkMonitor = NetworkMonitor.shared
+    
+    // MARK: - Life сycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "Avito employees list"
         setupCollectionView()
         setupDataSource()
-    }
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        NetworkMonitor.shared.startMonitoring()
+        presenter.getEmployees()
+        networkMonitor.startMonitoring()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(showOfflineDeviceUI),
                                                name: NSNotification.Name.connectivityStatus,
                                                object: nil)
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        NetworkMonitor.shared.stopMonitoring()
-        NotificationCenter.default.removeObserver(self,
-                                                  name: NSNotification.Name.connectivityStatus,
-                                                  object: nil)
-    }
-    
     // MARK: - NotificationCenter selector method
+    
     @objc func showOfflineDeviceUI(_ notification: Notification) {
-        DispatchQueue.main.async {
-            if !NetworkMonitor.shared.isConnected {
-                let alert = UIAlertController(title: nil, message: "No internet connection", preferredStyle: .alert)
-                let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-                alert.addAction(okAction)
-                self.present(alert, animated: true, completion: nil)
-            }
+        Task(priority: .userInitiated) { [weak self] in
+            await self?.offlineConnectionAction()
         }
     }
     
+    private func offlineConnectionAction() async {
+        await MainActor.run(body: {
+            var forAlert = ""
+            if networkMonitor.isConnected == false {
+                forAlert = "No internet connection"
+            }
+            showAlert(withMessage: forAlert)
+        })
+    }
+    
     // MARK: - Layout details
+    
     private func layoutDetails(for: Section) -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
@@ -75,6 +77,7 @@ final class EmployeesListViewController: UIViewController {
     }
     
     // MARK: - Setup CollectionView
+    
     private func setupCollectionView() {
         employeeListCollection = UICollectionView(frame: view.bounds, collectionViewLayout: layoutDetails(for: .main))
         employeeListCollection.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -86,37 +89,38 @@ final class EmployeesListViewController: UIViewController {
     
     
     // MARK: - Snapshot generating
+    
     private func generateSnapshot() -> NSDiffableDataSourceSnapshot<Section, Employee> {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Employee>()
-        let employee = (presenter.employees)!
+        let employee = presenter.employees!
         snapshot.appendSections([.main])
         snapshot.appendItems(employee, toSection: Section.main)
         return snapshot
     }
     
     // MARK: - Reload data for employeeListCollection
+    
     private func reloadData() {
         dataSource?.apply(generateSnapshot(), animatingDifferences: false)
     }
 }
 
 // MARK: - EmployeeListProtocol methods
+
 extension EmployeesListViewController: EmployeeListProtocol {
     
     func succes() {
         reloadData()
     }
     func failure(error: ErrorTypes) {
-        let alert = UIAlertController(title: nil, message: error.localizedDescription, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alert.addAction(okAction)
-        self.present(alert, animated: true, completion: nil)
+        showAlert(withMessage: error.localizedDescription)
     }
 }
 
 // MARK: - Manage the data in employeeListCollection
-extension EmployeesListViewController {
-    private func setupDataSource() {
+
+private extension EmployeesListViewController {
+    func setupDataSource() {
         dataSource = UICollectionViewDiffableDataSource<Section, Employee>(collectionView: employeeListCollection, cellProvider: { (collectionView, indexPath, movie) -> UICollectionViewCell? in
             
             let employee = self.presenter.employees?[indexPath.row]
@@ -127,5 +131,16 @@ extension EmployeesListViewController {
                                    skills: employee?.skills?.joined(separator: ", ") ?? "")
             return cell
         })
+    }
+}
+
+// MARK: - Simple alert for view controller
+
+private extension EmployeesListViewController {
+    func showAlert(withMessage message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alert.addAction(okAction)
+        self.present(alert, animated: true, completion: nil)
     }
 }

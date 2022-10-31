@@ -9,9 +9,11 @@ import Foundation
 
 
 // MARK: - EmployeeListAPIResponse
+
 typealias EmployeeListAPIResponse = (Result<[Employee]?, ErrorTypes>) -> Void
 
 // MARK: - NetworkServiceProtocol
+
 protocol NetworkServiceProtocol {
     func fetchEmployeeList() async throws -> [Employee]?
     var employeeList: [Employee]? { get set }
@@ -22,14 +24,15 @@ final class NetworkService: NetworkServiceProtocol {
     // MARK: - NetworkService variables and constants
     var employeeList: [Employee]?
     
+    private let cache: CacheResponseProtocol?
     private let decoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
-    private let cache: CacheResponseProtocol?
 
-    // MARK: - LifeCycle
+    // MARK: - Life cycle
+    
     init(cache: CacheResponseProtocol?)
     {
         self.cache = cache
@@ -43,6 +46,7 @@ final class NetworkService: NetworkServiceProtocol {
     }
     
     // MARK: - Creating URLSession
+    
     private func createAndRetrieveURLSession() -> URLSession {
         let sessionConfiguration = URLSessionConfiguration.default
         sessionConfiguration.timeoutIntervalForResource = Constants.timeoutTimeInterval
@@ -50,6 +54,7 @@ final class NetworkService: NetworkServiceProtocol {
     }
 
     // MARK: - Fetching employees list
+    
     func fetchEmployeeList() async throws -> [Employee]? {
 
         let urlString = Constants.withEmployeeListURL
@@ -62,10 +67,12 @@ final class NetworkService: NetworkServiceProtocol {
             
             let urlRequest = URLRequest(url: url)
             
-            if let cachedData = cache?.data(forRequest: urlRequest),
-               let employeeListFromCache = try decode(data: cachedData) {
-                employeeList = employeeListFromCache
-                return employeeList
+            if let cachedData = cache?.data(forRequest: urlRequest) {
+                guard let employeeListFromCache = try? self.decode(data: cachedData)
+                else {
+                    throw  ErrorTypes.invalidData
+                }
+                return employeeListFromCache
             }
             
             let (data, response) = try await createAndRetrieveURLSession().asyncData(from: urlRequest)
@@ -112,14 +119,15 @@ final class NetworkService: NetworkServiceProtocol {
             return nil
         }
     }
-}
+    
+    // MARK: - Constants
 
-// MARK: - URL for fetchEmployeeList method
-fileprivate struct Constants {
-    static let timeoutTimeInterval: TimeInterval = 7
-    static let withEmployeeListURL = "https://run.mocky.io/v3/1d1cb4ec-73db-4762-8c4b-0b8aa3cecd4c"
-    static let diskPath = "companyFetcherCache"
-    static let allowedMemorySize = 10 * 1024 * 1024 // 10 Mb
-    static let allowedDiskSize = 10 * 1024 * 1024 // 10 Mb
-    static let cacheStorageTimeInterval: Double = 60 * 60 // 1 hour
+    private enum Constants {
+        static let timeoutTimeInterval: TimeInterval = 7
+        static let withEmployeeListURL = "https://run.mocky.io/v3/1d1cb4ec-73db-4762-8c4b-0b8aa3cecd4c"
+        static let diskPath = "companyFetcherCache"
+        static let allowedMemorySize = 10 * 1024 * 1024 // 10 Mb
+        static let allowedDiskSize = 10 * 1024 * 1024 // 10 Mb
+        static let cacheStorageTimeInterval: Double = 60 * 60 // 1 hour
+    }
 }
