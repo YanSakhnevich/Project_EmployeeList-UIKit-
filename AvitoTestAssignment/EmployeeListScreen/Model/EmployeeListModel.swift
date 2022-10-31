@@ -26,10 +26,4 @@ struct Company: Decodable {
 struct Employee: Decodable, Hashable {
     let name, phoneNumber: String?
     let skills: [String]?
-    
-    enum CodingKeys: String, CodingKey {
-        case name
-        case phoneNumber = "phone_number"
-        case skills
-    }
 }

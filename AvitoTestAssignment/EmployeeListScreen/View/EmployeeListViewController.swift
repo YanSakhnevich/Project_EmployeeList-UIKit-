@@ -20,6 +20,14 @@ final class EmployeesListViewController: UIViewController {
     var presenter: EmployeeListPresenterProtocol!
     private var dataSource: UICollectionViewDiffableDataSource<Section, Employee>?
     private var employeeListCollection: UICollectionView!
+    private lazy var noInternetIconView = {
+        let view = UIImageView(image: UIImage(named: "no_internet")?.withRenderingMode(.alwaysTemplate))
+        view.tintColor = .systemOrange
+        view.isUserInteractionEnabled = true
+        view.toAutoLayout()
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(noInternetIconTapped)))
+        return view
+    }()
     
     private let networkMonitor = NetworkMonitor.shared
     
@@ -48,11 +56,12 @@ final class EmployeesListViewController: UIViewController {
     
     private func offlineConnectionAction() async {
         await MainActor.run(body: {
-            var forAlert = ""
             if networkMonitor.isConnected == false {
-                forAlert = "No internet connection"
+                let locationNavButton = UIBarButtonItem(customView: noInternetIconView)
+                locationNavButton.customView?.widthAnchor.constraint(equalToConstant: Constants.noInternetIconSize).isActive = true
+                locationNavButton.customView?.heightAnchor.constraint(equalToConstant: Constants.noInternetIconSize).isActive = true
+                navigationItem.setRightBarButtonItems([locationNavButton], animated: true)
             }
-            showAlert(withMessage: forAlert)
         })
     }
     
@@ -60,13 +69,13 @@ final class EmployeesListViewController: UIViewController {
     
     private func layoutDetails(for: Section) -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .fractionalHeight(1.0))
+            widthDimension: .fractionalWidth(Constants.fractionalWidthHeight),
+            heightDimension: .fractionalHeight(Constants.fractionalWidthHeight))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0),
-            heightDimension: .absolute(100.0))
+            widthDimension: .fractionalWidth(Constants.fractionalWidthHeight),
+            heightDimension: .absolute(Constants.heightDimension))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
@@ -86,7 +95,7 @@ final class EmployeesListViewController: UIViewController {
         view.addSubview(employeeListCollection)
         reloadData()
     }
-    
+
     
     // MARK: - Snapshot generating
     
@@ -113,7 +122,8 @@ extension EmployeesListViewController: EmployeeListProtocol {
         reloadData()
     }
     func failure(error: ErrorTypes) {
-        showAlert(withMessage: error.localizedDescription)
+        let message = error.localizedDescription
+        showAlert(with: message)
     }
 }
 
@@ -132,15 +142,31 @@ private extension EmployeesListViewController {
             return cell
         })
     }
+    
+    // MARK: - Constants
+
+    private enum Constants {
+        static let noInternetIconSize: CGFloat = 30.0
+        static let fractionalWidthHeight: CGFloat = 1.0
+        static let heightDimension: CGFloat = 100.0
+    }
 }
 
 // MARK: - Simple alert for view controller
 
 private extension EmployeesListViewController {
-    func showAlert(withMessage message: String) {
+    func showAlert(with message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alert.addAction(okAction)
         self.present(alert, animated: true, completion: nil)
+    }
+}
+
+// MARK: - RightBarButtonItem action
+
+private extension EmployeesListViewController {
+    @objc func noInternetIconTapped() {
+        showAlert(with: "No Internet connection")
     }
 }

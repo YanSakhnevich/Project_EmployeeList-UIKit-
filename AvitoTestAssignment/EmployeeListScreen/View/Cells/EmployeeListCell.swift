@@ -59,6 +59,7 @@ final class EmployeeTableViewCell: UICollectionViewCell {
         stackView.axis = .vertical
         stackView.spacing = Constants.stackViewSpacing
         stackView.distribution = .fillProportionally
+ 
         return stackView
     }()
     
